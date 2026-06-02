@@ -1,0 +1,89 @@
+/* Additional styles beyond Tailwind */
+
+body { -webkit-font-smoothing: antialiased; }
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Markdown answer styles */
+.answer-content h1, .answer-content h2, .answer-content h3 {
+  font-weight: 600;
+  margin: 0.75em 0 0.25em;
+}
+.answer-content p { margin: 0.5em 0; line-height: 1.7; }
+.answer-content ul, .answer-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+.answer-content li { margin: 0.2em 0; line-height: 1.6; }
+.answer-content code {
+  background: #f3f4f6;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: ui-monospace, monospace;
+}
+.answer-content pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.85em;
+  margin: 0.75em 0;
+}
+.answer-content pre code { background: none; padding: 0; color: inherit; }
+.answer-content strong { font-weight: 600; }
+
+/* Citation badge */
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #e0e7ff;
+  color: #4f46e5;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  vertical-align: super;
+  margin-left: 1px;
+  transition: background 0.15s;
+}
+.source-badge:hover { background: #c7d2fe; }
+
+/* Citation card */
+.citation-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Drop zone active */
+#drop-zone.drag-over {
+  border-color: #6366f1;
+  background-color: #eef2ff;
+}
+
+/* Transition */
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

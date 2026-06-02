@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is the main purpose of this document?",
+    "ground_truth": "The document provides an overview of its subject matter and key findings."
+  },
+  {
+    "question": "What are the key conclusions presented?",
+    "ground_truth": "The document concludes with actionable recommendations based on the analysis."
+  },
+  {
+    "question": "Who is the intended audience for this document?",
+    "ground_truth": "The document is intended for professionals and stakeholders in the relevant field."
+  },
+  {
+    "question": "What methodology or approach is described?",
+    "ground_truth": "The document describes a systematic approach to analyzing the subject matter."
+  },
+  {
+    "question": "Are there any specific recommendations made?",
+    "ground_truth": "Yes, the document makes specific recommendations for implementation."
+  }
+]

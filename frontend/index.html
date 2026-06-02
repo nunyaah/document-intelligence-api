@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            brand: { DEFAULT: '#6366f1', dark: '#4f46e5', light: '#e0e7ff' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen font-sans">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <span class="font-semibold text-gray-900 text-lg">Document Intelligence</span>
+    </div>
+    <nav class="flex items-center gap-4 text-sm text-gray-500">
+      <a href="/docs" target="_blank" class="hover:text-brand transition-colors">API Docs</a>
+      <a href="https://github.com" target="_blank" class="hover:text-brand transition-colors">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-10">
+
+    <!-- Upload Screen -->
+    <section id="upload-screen">
+      <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-gray-900 mb-3">Upload any document.</h1>
+        <p class="text-xl text-gray-500">Ask it anything. Get cited answers.</p>
+      </div>
+
+      <!-- Drop Zone -->
+      <div id="drop-zone"
+        class="border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center cursor-pointer hover:border-brand hover:bg-brand-light/30 transition-all duration-200 bg-white"
+        ondragover="event.preventDefault()" ondrop="handleDrop(event)" onclick="document.getElementById('file-input').click()">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-16 h-16 bg-brand-light rounded-2xl flex items-center justify-center">
+            <svg class="w-8 h-8 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-gray-700 font-medium text-lg">Drop your file here, or <span class="text-brand">browse</span></p>
+            <p class="text-gray-400 text-sm mt-1">PDF, DOCX, TXT, CSV — max 20 MB</p>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt,.csv,.xlsx"
+        onchange="handleFileSelect(event)">
+
+      <!-- Upload Progress -->
+      <div id="upload-progress" class="hidden mt-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span id="upload-filename" class="text-sm font-medium text-gray-700 truncate"></span>
+            <span id="upload-pct" class="text-sm text-gray-400 ml-2">0%</span>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2">
+            <div id="progress-bar" class="bg-brand h-2 rounded-full transition-all duration-300" style="width:0%"></div>
+          </div>
+          <p id="upload-status-text" class="text-xs text-gray-400 mt-2">Uploading...</p>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="upload-error" class="hidden mt-4 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm"></div>
+
+      <!-- Document List -->
+      <div id="doc-list-section" class="hidden mt-8">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Uploaded Documents</h2>
+        <div id="doc-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- Chat Screen (hidden until doc uploaded) -->
+    <section id="chat-screen" class="hidden">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900" id="chat-doc-name"></h2>
+          <p class="text-sm text-gray-400" id="chat-doc-info"></p>
+        </div>
+        <button onclick="showUploadScreen()"
+          class="text-sm text-brand hover:text-brand-dark font-medium flex items-center gap-1 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Upload another
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <div id="messages" class="space-y-6 mb-6 min-h-[120px]"></div>
+
+      <!-- Question Input -->
+      <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+        <div class="flex gap-3 items-end">
+          <textarea id="question-input"
+            class="flex-1 resize-none text-sm text-gray-800 outline-none placeholder-gray-400 min-h-[44px] max-h-40"
+            placeholder="Ask a question about this document..." rows="1"
+            oninput="autoResize(this)"
+            onkeydown="handleEnter(event)"></textarea>
+          <button onclick="askQuestion()"
+            class="bg-brand hover:bg-brand-dark text-white rounded-xl px-5 py-2.5 text-sm font-medium transition-colors flex items-center gap-2 shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            Ask
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-xs text-gray-400 py-8 mt-4">
+    Built with <span class="text-brand font-medium">FastAPI</span> ·
+    <span class="text-brand font-medium">LangChain</span> ·
+    <span class="text-brand font-medium">Groq</span> ·
+    <span class="text-brand font-medium">Qdrant</span>
+    &nbsp;·&nbsp;
+    <a href="https://github.com" class="hover:text-brand transition-colors">GitHub</a>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
