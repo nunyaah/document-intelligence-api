@@ -50,16 +50,20 @@ class DocumentService:
         document_id: str,
         question: str,
         top_k: int,
+        conversation_history: list | None = None,
         request_id: str = "",
     ) -> dict:
         if document_id not in _document_store:
             raise DocumentNotFoundError(document_id)
 
         doc_meta = _document_store[document_id]
-        settings = get_settings()
+
+        # Build a contextualized query for embedding so that pronouns like
+        # "this strategy" or "it" resolve correctly against prior turns.
+        embedding_query = _contextualize_query(question, conversation_history or [])
 
         # Embed query
-        query_vector = embed_query(question)
+        query_vector = embed_query(embedding_query)
 
         # Retrieve
         results = self._vs.search(query_vector, document_id=document_id, top_k=top_k)
@@ -78,6 +82,7 @@ class DocumentService:
             question=question,
             chunks=results_sorted,
             filename=doc_meta["filename"],
+            conversation_history=conversation_history or [],
         )
         logger.info("LLM call complete", extra={
             "request_id": request_id,
@@ -103,6 +108,22 @@ class DocumentService:
         deleted = self._vs.delete_document(document_id)
         del _document_store[document_id]
         return deleted
+
+
+def _contextualize_query(question: str, history: list) -> str:
+    """Prepend the last assistant answer to the current question so that
+    deictic references like 'this strategy' or 'it' resolve correctly
+    during vector similarity search."""
+    if not history:
+        return question
+
+    # Find the most recent assistant turn and append it as context prefix
+    for turn in reversed(history):
+        if turn.get("role") == "assistant":
+            prior = turn["content"][:400].strip()  # cap to keep embedding focused
+            return f"{prior} {question}"
+
+    return question
 
 
 def get_document_service(vs: VectorStoreAdapter = Depends(get_vector_store)) -> DocumentService:

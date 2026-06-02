@@ -58,7 +58,12 @@ def _call_groq(client, messages: list[dict], model: str, max_tokens: int, temper
     return response.choices[0].message.content
 
 
-async def generate_answer(question: str, chunks: list, filename: str) -> tuple[str, str]:
+async def generate_answer(
+    question: str,
+    chunks: list,
+    filename: str,
+    conversation_history: list | None = None,
+) -> tuple[str, str]:
     """Call the LLM and return (answer_text, model_name)."""
     from app.utils.exceptions import LLMUnavailableError
 
@@ -72,8 +77,18 @@ async def generate_answer(question: str, chunks: list, filename: str) -> tuple[s
         filename=filename, context=context, question=question
     )
 
+    # Inject prior turns between system prompt and the current user message
+    # so the LLM can resolve references like "this strategy" or "it".
+    history_messages = []
+    for turn in (conversation_history or []):
+        role = turn.get("role")
+        content = turn.get("content", "")
+        if role in ("user", "assistant") and content:
+            history_messages.append({"role": role, "content": content})
+
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
+        *history_messages,
         {"role": "user", "content": human_prompt},
     ]
 

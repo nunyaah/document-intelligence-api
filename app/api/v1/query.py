@@ -30,6 +30,7 @@ async def ask_question(
         document_id=body.document_id,
         question=body.question,
         top_k=body.top_k,
+        conversation_history=[t.model_dump() for t in body.conversation_history],
         request_id=request_id,
     )
 

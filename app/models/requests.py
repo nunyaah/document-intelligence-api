@@ -2,10 +2,20 @@ from pydantic import BaseModel, Field, field_validator
 import uuid
 
 
+class ConversationTurn(BaseModel):
+    role: str = Field(..., description="'user' or 'assistant'")
+    content: str = Field(..., max_length=4000)
+
+
 class AskRequest(BaseModel):
     document_id: str = Field(..., description="UUID of the uploaded document")
     question: str = Field(..., min_length=1, max_length=1000, description="Natural language question")
     top_k: int = Field(default=5, ge=1, le=20, description="Number of chunks to retrieve")
+    conversation_history: list[ConversationTurn] = Field(
+        default_factory=list,
+        max_length=10,
+        description="Recent conversation turns for query contextualization",
+    )
 
     @field_validator("document_id")
     @classmethod

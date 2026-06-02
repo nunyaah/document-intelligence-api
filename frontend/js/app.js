@@ -1,6 +1,8 @@
 const API = '/api/v1';
 let activeDocumentId = null;
 let activeDocumentName = '';
+// Stores {role, content} pairs for the active document conversation (max 10 turns)
+let conversationHistory = [];
 
 // ── Upload ────────────────────────────────────────────────────────────────────
 
@@ -152,6 +154,7 @@ function showUploadScreen() {
 
 function clearMessages() {
   document.getElementById('messages').innerHTML = '';
+  conversationHistory = [];
 }
 
 // ── Q&A ───────────────────────────────────────────────────────────────────────
@@ -183,7 +186,11 @@ async function askQuestion() {
     const res = await fetch(`${API}/ask`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ document_id: activeDocumentId, question }),
+      body: JSON.stringify({
+        document_id: activeDocumentId,
+        question,
+        conversation_history: conversationHistory,
+      }),
     });
     const json = await res.json();
 
@@ -193,6 +200,11 @@ async function askQuestion() {
     }
 
     replaceSkeletonWithAnswer(answerId, json.data);
+
+    // Track this turn in history (keep last 10 turns = 5 exchanges)
+    conversationHistory.push({ role: 'user', content: question });
+    conversationHistory.push({ role: 'assistant', content: json.data.answer });
+    if (conversationHistory.length > 10) conversationHistory.splice(0, 2);
   } catch (err) {
     replaceSkeletonWithError(answerId, 'Network error: ' + err.message);
   }
