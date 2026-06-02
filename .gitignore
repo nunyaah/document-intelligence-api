@@ -45,3 +45,7 @@ Thumbs.db
 .cache/
 
 PRD_Document_Intelligence_API.md
+
+.venv
+
+logs.md

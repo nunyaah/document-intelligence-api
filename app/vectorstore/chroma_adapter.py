@@ -30,7 +30,6 @@ class ChromaAdapter(VectorStoreAdapter):
         logger.info("ChromaDB upsert", extra={"count": len(points)})
 
     def search(self, query_vector: list[float], document_id: str, top_k: int) -> list[SearchResult]:
-        settings = get_settings()
         results = self._collection.query(
             query_embeddings=[query_vector],
             n_results=top_k,
@@ -38,18 +37,17 @@ class ChromaAdapter(VectorStoreAdapter):
             include=["metadatas", "distances"],
         )
 
-        search_results = []
         ids = results.get("ids", [[]])[0]
         distances = results.get("distances", [[]])[0]
         metadatas = results.get("metadatas", [[]])[0]
 
-        for rid, dist, meta in zip(ids, distances, metadatas):
-            # ChromaDB cosine distance: score = 1 - distance
-            score = 1.0 - dist
-            if score >= settings.retrieval_min_score:
-                search_results.append(SearchResult(id=rid, score=round(score, 4), payload=meta))
-
-        return search_results
+        # ChromaDB cosine distance: score = 1 - distance (range ~0–1 for normalized vectors)
+        # No hard threshold here — always return whatever was found so the LLM has context.
+        # The LLM's system prompt handles the "not in document" case.
+        return [
+            SearchResult(id=rid, score=round(1.0 - dist, 4), payload=meta)
+            for rid, dist, meta in zip(ids, distances, metadatas)
+        ]
 
     def delete_document(self, document_id: str) -> int:
         existing = self._collection.get(where={"document_id": document_id})

@@ -50,7 +50,6 @@ class QdrantAdapter(VectorStoreAdapter):
     def search(self, query_vector: list[float], document_id: str, top_k: int) -> list[SearchResult]:
         from qdrant_client.models import Filter, FieldCondition, MatchValue
 
-        settings = get_settings()
         results = self._client.search(
             collection_name=self._collection,
             query_vector=query_vector,
@@ -58,7 +57,6 @@ class QdrantAdapter(VectorStoreAdapter):
                 must=[FieldCondition(key="document_id", match=MatchValue(value=document_id))]
             ),
             limit=top_k,
-            score_threshold=settings.retrieval_min_score,
         )
 
         return [

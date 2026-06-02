@@ -30,7 +30,7 @@ async def upload_document(
 
     logger.info("File uploaded", extra={
         "request_id": request_id,
-        "filename": filename,
+        "doc_filename": filename,
         "size_bytes": len(content),
     })
 
