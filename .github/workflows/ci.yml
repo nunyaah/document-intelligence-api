@@ -34,3 +34,11 @@ jobs:
           GROQ_MODEL: llama-3.1-8b-instant
           EMBEDDING_MODEL: all-MiniLM-L6-v2
         run: pytest tests/ -v --tb=short
+
+  deploy:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Trigger Render deploy
+        run: curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
