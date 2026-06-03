@@ -1,7 +1,6 @@
-import uuid
-from app.vectorstore.base import VectorStoreAdapter, VectorPoint, SearchResult
 from app.config import get_settings
 from app.utils.logging import get_logger
+from app.vectorstore.base import SearchResult, VectorPoint, VectorStoreAdapter
 
 logger = get_logger(__name__)
 

@@ -2,12 +2,12 @@ import os
 import uuid
 from pathlib import Path
 
-from app.pipeline.parsers.factory import get_parser
+from app.config import get_settings
 from app.pipeline.chunker import chunk_pages
 from app.pipeline.embedder import embed_texts
-from app.vectorstore.base import VectorStoreAdapter, VectorPoint
-from app.config import get_settings
+from app.pipeline.parsers.factory import get_parser
 from app.utils.logging import get_logger
+from app.vectorstore.base import VectorPoint, VectorStoreAdapter
 
 logger = get_logger(__name__)
 
@@ -37,12 +37,15 @@ async def ingest_document(
         pages = parser.parse(file_path)
         page_count = len(pages)
         char_count = sum(len(p.text) for p in pages)
-        logger.info("Parsing complete", extra={
-            "request_id": request_id,
-            "document_id": document_id,
-            "page_count": page_count,
-            "char_count": char_count,
-        })
+        logger.info(
+            "Parsing complete",
+            extra={
+                "request_id": request_id,
+                "document_id": document_id,
+                "page_count": page_count,
+                "char_count": char_count,
+            },
+        )
 
         # Chunk
         chunks = chunk_pages(pages, document_id=document_id, source_filename=filename)
@@ -50,11 +53,14 @@ async def ingest_document(
         # Embed
         texts = [c.text for c in chunks]
         vectors = embed_texts(texts)
-        logger.info("Embedding complete", extra={
-            "request_id": request_id,
-            "document_id": document_id,
-            "chunk_count": len(chunks),
-        })
+        logger.info(
+            "Embedding complete",
+            extra={
+                "request_id": request_id,
+                "document_id": document_id,
+                "chunk_count": len(chunks),
+            },
+        )
 
         # Build VectorPoints
         points = [
@@ -77,11 +83,14 @@ async def ingest_document(
 
         # Store
         vector_store.upsert(points)
-        logger.info("Vector upsert complete", extra={
-            "request_id": request_id,
-            "document_id": document_id,
-            "point_count": len(points),
-        })
+        logger.info(
+            "Vector upsert complete",
+            extra={
+                "request_id": request_id,
+                "document_id": document_id,
+                "point_count": len(points),
+            },
+        )
 
         return {
             "page_count": page_count,

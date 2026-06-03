@@ -1,16 +1,16 @@
 import uuid
 from datetime import datetime, timezone
+
 from fastapi import Depends
 
 from app.dependencies import get_vector_store
-from app.pipeline.ingestion import ingest_document
-from app.pipeline.embedder import embed_query
-from app.pipeline.llm_engine import generate_answer
 from app.pipeline.citation_builder import build_citations
-from app.vectorstore.base import VectorStoreAdapter
+from app.pipeline.embedder import embed_query
+from app.pipeline.ingestion import ingest_document
+from app.pipeline.llm_engine import generate_answer
 from app.utils.exceptions import DocumentNotFoundError
-from app.config import get_settings
 from app.utils.logging import get_logger
+from app.vectorstore.base import VectorStoreAdapter
 
 logger = get_logger(__name__)
 
@@ -67,12 +67,15 @@ class DocumentService:
 
         # Retrieve
         results = self._vs.search(query_vector, document_id=document_id, top_k=top_k)
-        logger.info("Retrieval complete", extra={
-            "request_id": request_id,
-            "document_id": document_id,
-            "chunks_retrieved": len(results),
-            "top_score": results[0].score if results else 0,
-        })
+        logger.info(
+            "Retrieval complete",
+            extra={
+                "request_id": request_id,
+                "document_id": document_id,
+                "chunks_retrieved": len(results),
+                "top_score": results[0].score if results else 0,
+            },
+        )
 
         # Sort by chunk_index for narrative coherence
         results_sorted = sorted(results, key=lambda r: r.payload.get("chunk_index", 0))
@@ -84,10 +87,13 @@ class DocumentService:
             filename=doc_meta["filename"],
             conversation_history=conversation_history or [],
         )
-        logger.info("LLM call complete", extra={
-            "request_id": request_id,
-            "model": model_used,
-        })
+        logger.info(
+            "LLM call complete",
+            extra={
+                "request_id": request_id,
+                "model": model_used,
+            },
+        )
 
         # Build citations
         citations = build_citations(answer, results_sorted)

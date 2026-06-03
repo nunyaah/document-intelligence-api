@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from app.pipeline.parsers.base import PageText
 from app.config import get_settings
+from app.pipeline.parsers.base import PageText
 from app.utils.logging import get_logger
 
 logger = get_logger(__name__)

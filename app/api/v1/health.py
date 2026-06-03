@@ -1,9 +1,10 @@
 import time
 import uuid
+
 from fastapi import APIRouter, Request
 
-from app.models.responses import APIResponse, HealthData, ComponentStatus
 from app.config import get_settings
+from app.models.responses import APIResponse, ComponentStatus, HealthData
 
 router = APIRouter()
 _start_time = time.time()
@@ -19,6 +20,7 @@ async def health_check(request: Request):
     vs_latency = None
     try:
         from app.dependencies import get_vector_store
+
         vs = get_vector_store()
         t0 = time.time()
         healthy = vs.health_check()
@@ -32,6 +34,7 @@ async def health_check(request: Request):
     emb_model = settings.embedding_model
     try:
         from app.pipeline.embedder import get_embedder
+
         embedder = get_embedder()
         emb_status = "loaded" if embedder is not None else "not_loaded"
     except Exception:

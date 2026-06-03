@@ -1,5 +1,6 @@
 import uuid
-from fastapi import APIRouter, Request, Depends
+
+from fastapi import APIRouter, Depends, Request
 
 from app.models.requests import EvalRequest
 from app.models.responses import APIResponse, EvalData
@@ -18,7 +19,9 @@ async def run_evaluation(
 
     result = await eval_service.run_eval(
         document_id=body.document_id,
-        eval_dataset=[{"question": item.question, "ground_truth": item.ground_truth} for item in body.eval_dataset],
+        eval_dataset=[
+            {"question": item.question, "ground_truth": item.ground_truth} for item in body.eval_dataset
+        ],
         request_id=request_id,
     )
 

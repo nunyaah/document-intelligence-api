@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Upload a sample document and ask demo questions."""
-import sys
+
 import httpx
 
 BASE = "http://localhost:8000"

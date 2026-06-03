@@ -1,10 +1,9 @@
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 from fastapi.testclient import TestClient
 
-from app.main import app
 from app.dependencies import get_vector_store
-from app.vectorstore.base import VectorStoreAdapter, SearchResult
+from app.main import app
+from app.vectorstore.base import SearchResult, VectorStoreAdapter
 
 
 class MockVectorStore(VectorStoreAdapter):
@@ -18,10 +17,7 @@ class MockVectorStore(VectorStoreAdapter):
 
     def search(self, query_vector, document_id, top_k):
         points = self._data.get(document_id, [])[:top_k]
-        return [
-            SearchResult(id=p.id, score=0.85, payload=p.payload)
-            for p in points
-        ]
+        return [SearchResult(id=p.id, score=0.85, payload=p.payload) for p in points]
 
     def delete_document(self, document_id):
         n = len(self._data.pop(document_id, []))

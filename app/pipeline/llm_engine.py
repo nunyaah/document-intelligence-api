@@ -1,5 +1,4 @@
-import os
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from app.config import get_settings
 from app.utils.logging import get_logger
@@ -38,6 +37,7 @@ def _build_context_string(chunks) -> str:
 
 def _get_groq_client():
     from groq import Groq
+
     settings = get_settings()
     return Groq(api_key=settings.groq_api_key)
 
@@ -73,14 +73,12 @@ async def generate_answer(
         raise LLMUnavailableError("GROQ_API_KEY is not configured.")
 
     context = _build_context_string(chunks)
-    human_prompt = HUMAN_PROMPT_TEMPLATE.format(
-        filename=filename, context=context, question=question
-    )
+    human_prompt = HUMAN_PROMPT_TEMPLATE.format(filename=filename, context=context, question=question)
 
     # Inject prior turns between system prompt and the current user message
     # so the LLM can resolve references like "this strategy" or "it".
     history_messages = []
-    for turn in (conversation_history or []):
+    for turn in conversation_history or []:
         role = turn.get("role")
         content = turn.get("content", "")
         if role in ("user", "assistant") and content:

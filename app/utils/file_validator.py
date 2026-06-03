@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from app.utils.exceptions import InvalidFileTypeError, FileTooLargeError, EmptyFileError
+from app.utils.exceptions import EmptyFileError, FileTooLargeError, InvalidFileTypeError
 
 ACCEPTED_EXTENSIONS = ["pdf", "docx", "txt", "csv", "xlsx"]
 ACCEPTED_MIMES = {

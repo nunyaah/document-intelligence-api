@@ -1,25 +1,28 @@
-import time
+import os
+import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-import os
+from slowapi.util import get_remote_address
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
+from app.api.v1.router import router as v1_router
 from app.config import get_settings
-from app.utils.logging import setup_logging, get_logger
 from app.utils.exceptions import (
     DocumentIntelligenceError,
     document_intelligence_exception_handler,
-    validation_exception_handler,
     generic_exception_handler,
+    validation_exception_handler,
 )
-from app.api.v1.router import router as v1_router
+from app.utils.logging import get_logger, setup_logging
 
 settings = get_settings()
 setup_logging()
@@ -34,6 +37,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up — pre-warming embedding model")
     try:
         from app.pipeline.embedder import get_embedder
+
         get_embedder()
         logger.info("Embedding model loaded")
     except Exception as exc:
@@ -69,13 +73,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Request ID middleware
-import uuid
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
-
-
 class RequestIDMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))

@@ -1,14 +1,15 @@
 from datetime import datetime, timezone
+
 from fastapi import Depends
 
+from app.config import get_settings
 from app.dependencies import get_vector_store
 from app.pipeline.embedder import embed_query
 from app.pipeline.llm_engine import generate_answer
-from app.vectorstore.base import VectorStoreAdapter
-from app.utils.exceptions import DocumentNotFoundError
-from app.config import get_settings
-from app.utils.logging import get_logger
 from app.services.document_service import _document_store
+from app.utils.exceptions import DocumentNotFoundError
+from app.utils.logging import get_logger
+from app.vectorstore.base import VectorStoreAdapter
 
 logger = get_logger(__name__)
 
@@ -62,6 +63,7 @@ class EvalService:
         # Optionally save results
         import json
         import os
+
         os.makedirs(settings.eval_output_dir, exist_ok=True)
         output_path = os.path.join(settings.eval_output_dir, f"eval_{document_id}.json")
         with open(output_path, "w") as f:
@@ -80,7 +82,7 @@ class EvalService:
         try:
             from datasets import Dataset
             from ragas import evaluate
-            from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
+            from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
 
             data = {
                 "question": questions,
@@ -89,7 +91,9 @@ class EvalService:
                 "ground_truth": ground_truths,
             }
             dataset = Dataset.from_dict(data)
-            result = evaluate(dataset, metrics=[faithfulness, answer_relevancy, context_precision, context_recall])
+            result = evaluate(
+                dataset, metrics=[faithfulness, answer_relevancy, context_precision, context_recall]
+            )
             return dict(result)
         except Exception as exc:
             logger.warning("RAGAS evaluation failed, returning zeros", extra={"error": str(exc)})

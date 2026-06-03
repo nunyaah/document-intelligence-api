@@ -1,4 +1,3 @@
-import pytest
 from app.pipeline.citation_builder import build_citations
 from app.vectorstore.base import SearchResult
 

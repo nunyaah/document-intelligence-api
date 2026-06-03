@@ -1,12 +1,13 @@
 import io
+
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
 
 
 def _make_pdf_bytes():
     """Create minimal valid PDF bytes."""
     try:
         import fitz
+
         doc = fitz.open()
         page = doc.new_page()
         page.insert_text((72, 72), "Integration test document. " * 50)
@@ -21,6 +22,7 @@ def _make_pdf_bytes():
 @pytest.fixture(autouse=True)
 def mock_ingest(monkeypatch):
     """Prevent real embedding/vector operations during upload tests."""
+
     async def fake_ingest(content, filename, document_id, vector_store, request_id=""):
         return {"page_count": 5, "chunk_count": 20}
 

@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field, field_validator
 import uuid
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class ConversationTurn(BaseModel):

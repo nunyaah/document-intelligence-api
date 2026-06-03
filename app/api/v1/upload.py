@@ -1,12 +1,11 @@
 import uuid
-from datetime import datetime, timezone
-from fastapi import APIRouter, UploadFile, File, Request, Depends
 
+from fastapi import APIRouter, Depends, File, Request, UploadFile
+
+from app.config import get_settings
 from app.models.responses import APIResponse, UploadData
 from app.services.document_service import DocumentService, get_document_service
-from app.utils.file_validator import validate_file, sanitize_filename
-from app.utils.exceptions import EmptyFileError
-from app.config import get_settings
+from app.utils.file_validator import sanitize_filename, validate_file
 from app.utils.logging import get_logger
 
 router = APIRouter()
@@ -28,11 +27,14 @@ async def upload_document(
     # Validate (raises on error)
     validate_file(filename, content, settings.max_file_size_bytes)
 
-    logger.info("File uploaded", extra={
-        "request_id": request_id,
-        "doc_filename": filename,
-        "size_bytes": len(content),
-    })
+    logger.info(
+        "File uploaded",
+        extra={
+            "request_id": request_id,
+            "doc_filename": filename,
+            "size_bytes": len(content),
+        },
+    )
 
     result = await doc_service.ingest_document(
         content=content,

@@ -1,4 +1,5 @@
 import re
+
 from app.pipeline.parsers.base import BaseParser, PageText
 from app.utils.exceptions import EncryptedFileError, ParseFailedError
 from app.utils.logging import get_logger

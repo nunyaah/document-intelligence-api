@@ -1,7 +1,6 @@
-import uuid
-from app.vectorstore.base import VectorStoreAdapter, VectorPoint, SearchResult
 from app.config import get_settings
 from app.utils.logging import get_logger
+from app.vectorstore.base import SearchResult, VectorPoint, VectorStoreAdapter
 
 logger = get_logger(__name__)
 
@@ -11,7 +10,6 @@ _VECTOR_SIZE = 384
 class QdrantAdapter(VectorStoreAdapter):
     def __init__(self):
         from qdrant_client import QdrantClient
-        from qdrant_client.models import Distance, VectorParams
 
         settings = get_settings()
         self._collection = settings.qdrant_collection_name
@@ -40,15 +38,12 @@ class QdrantAdapter(VectorStoreAdapter):
         if not points:
             return
 
-        qdrant_points = [
-            PointStruct(id=p.id, vector=p.vector, payload=p.payload)
-            for p in points
-        ]
+        qdrant_points = [PointStruct(id=p.id, vector=p.vector, payload=p.payload) for p in points]
         self._client.upsert(collection_name=self._collection, points=qdrant_points)
         logger.info("Qdrant upsert", extra={"count": len(points)})
 
     def search(self, query_vector: list[float], document_id: str, top_k: int) -> list[SearchResult]:
-        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
 
         results = self._client.search(
             collection_name=self._collection,
@@ -59,13 +54,10 @@ class QdrantAdapter(VectorStoreAdapter):
             limit=top_k,
         )
 
-        return [
-            SearchResult(id=str(r.id), score=round(r.score, 4), payload=r.payload or {})
-            for r in results
-        ]
+        return [SearchResult(id=str(r.id), score=round(r.score, 4), payload=r.payload or {}) for r in results]
 
     def delete_document(self, document_id: str) -> int:
-        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
 
         # Count before delete
         count_result = self._client.count(

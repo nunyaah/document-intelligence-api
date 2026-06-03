@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1 import health, upload, query, documents, eval
+from app.api.v1 import documents, eval, health, query, upload
 
 router = APIRouter(prefix="/api/v1")
 

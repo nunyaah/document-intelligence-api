@@ -1,6 +1,6 @@
 from fastapi import Request
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 
 class DocumentIntelligenceError(Exception):
@@ -93,6 +93,7 @@ class VectorStoreError(DocumentIntelligenceError):
 
 def _error_response(request: Request, status_code: int, code: str, message: str, detail=None) -> JSONResponse:
     import uuid
+
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
     return JSONResponse(
         status_code=status_code,
@@ -105,7 +106,9 @@ def _error_response(request: Request, status_code: int, code: str, message: str,
     )
 
 
-async def document_intelligence_exception_handler(request: Request, exc: DocumentIntelligenceError) -> JSONResponse:
+async def document_intelligence_exception_handler(
+    request: Request, exc: DocumentIntelligenceError
+) -> JSONResponse:
     return _error_response(request, exc.status_code, exc.code, exc.message, exc.detail)
 
 
@@ -115,5 +118,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     import logging
+
     logging.getLogger(__name__).exception("Unhandled exception")
     return _error_response(request, 500, "INTERNAL_ERROR", "An internal server error occurred.")

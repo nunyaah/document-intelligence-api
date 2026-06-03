@@ -19,13 +19,15 @@ def build_citations(answer: str, chunks: list) -> list[dict]:
         chunk = chunks[idx]
         payload = chunk.payload
         excerpt = payload.get("text", "")[:200]
-        citations.append({
-            "source_label": f"SOURCE {n}",
-            "chunk_index": payload.get("chunk_index", idx),
-            "page_number": payload.get("page_number", 0),
-            "source_filename": payload.get("source_filename", ""),
-            "excerpt": excerpt,
-            "similarity_score": round(chunk.score, 4),
-        })
+        citations.append(
+            {
+                "source_label": f"SOURCE {n}",
+                "chunk_index": payload.get("chunk_index", idx),
+                "page_number": payload.get("page_number", 0),
+                "source_filename": payload.get("source_filename", ""),
+                "excerpt": excerpt,
+                "similarity_score": round(chunk.score, 4),
+            }
+        )
 
     return citations

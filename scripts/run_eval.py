@@ -8,9 +8,11 @@ Usage:
     --output eval_results.json \\
     --base_url http://localhost:8000
 """
+
 import argparse
 import json
 import sys
+
 import httpx
 
 

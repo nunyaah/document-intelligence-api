@@ -1,9 +1,7 @@
-import os
 import pytest
-from unittest.mock import patch, MagicMock
 
 from app.pipeline.parsers.pdf_parser import PDFParser
-from app.utils.exceptions import EncryptedFileError, ParseFailedError
+from app.utils.exceptions import EncryptedFileError
 
 
 def test_parse_pdf_returns_page_texts(tmp_path):
@@ -12,6 +10,7 @@ def test_parse_pdf_returns_page_texts(tmp_path):
     # Create a minimal PDF using fitz
     try:
         import fitz
+
         doc = fitz.open()
         page = doc.new_page()
         page.insert_text((72, 72), "Hello from page one.")
@@ -32,6 +31,7 @@ def test_pdf_parser_encrypted_raises(tmp_path):
     pdf_path = str(tmp_path / "enc.pdf")
     try:
         import fitz
+
         doc = fitz.open()
         doc.new_page()
         doc.save(pdf_path, encryption=fitz.PDF_ENCRYPT_AES_256, user_pw="secret")

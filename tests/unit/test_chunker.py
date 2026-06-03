@@ -1,6 +1,5 @@
-import pytest
-from app.pipeline.parsers.base import PageText
 from app.pipeline.chunker import chunk_pages
+from app.pipeline.parsers.base import PageText
 
 
 def test_chunker_produces_chunks():

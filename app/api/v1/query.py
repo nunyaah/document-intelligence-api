@@ -1,6 +1,7 @@
-import uuid
 import time
-from fastapi import APIRouter, Request, Depends
+import uuid
+
+from fastapi import APIRouter, Depends, Request
 
 from app.models.requests import AskRequest
 from app.models.responses import APIResponse, AskData, Citation
@@ -20,11 +21,14 @@ async def ask_question(
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
     t0 = time.time()
 
-    logger.info("Query received", extra={
-        "request_id": request_id,
-        "document_id": body.document_id,
-        "question_length": len(body.question),
-    })
+    logger.info(
+        "Query received",
+        extra={
+            "request_id": request_id,
+            "document_id": body.document_id,
+            "question_length": len(body.question),
+        },
+    )
 
     result = await doc_service.query_document(
         document_id=body.document_id,
