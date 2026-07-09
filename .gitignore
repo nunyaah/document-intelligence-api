@@ -44,8 +44,6 @@ Thumbs.db
 # HuggingFace cache
 .cache/
 
-PRD_Document_Intelligence_API.md
-
 .venv
 
 logs.md
